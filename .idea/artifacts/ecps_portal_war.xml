@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="ecps-portal:war">
+    <output-path>$PROJECT_DIR$/ecps-portal/target</output-path>
+    <root id="archive" name="ecps-portal-0.0.1-SNAPSHOT.war">
+      <element id="artifact" artifact-name="ecps-portal:war exploded" />
+    </root>
+  </artifact>
+</component>

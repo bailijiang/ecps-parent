@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="ecps-console:war">
+    <output-path>$PROJECT_DIR$/ecps-console/target</output-path>
+    <root id="archive" name="ecps-console-0.0.1-SNAPSHOT.war">
+      <element id="artifact" artifact-name="ecps-console:war exploded" />
+    </root>
+  </artifact>
+</component>

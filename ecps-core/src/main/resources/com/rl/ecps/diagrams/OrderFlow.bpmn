@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://www.activiti.org/test" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" expressionLanguage="http://www.w3.org/1999/XPath" id="m1498649249740" name="" targetNamespace="http://www.activiti.org/test" typeLanguage="http://www.w3.org/2001/XMLSchema">
+  <process id="OrderFlow" isClosed="false" isExecutable="true" name="订单流程" processType="None">
+    <startEvent id="startevent1" name="Start"/>
+    <userTask activiti:exclusive="true" id="noPaidOrder" name="未付款单">
+      <extensionElements>
+        <activiti:taskListener class="com.rl.ecps.utils.FlowOrderListener" event="create"/>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow1" name="提交订单" sourceRef="startevent1" targetRef="noPaidOrder"/>
+    <userTask activiti:exclusive="true" id="paidOrder" name="已付款单">
+      <extensionElements>
+        <activiti:taskListener class="com.rl.ecps.utils.FlowOrderListener" event="create"/>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow2" name="支付" sourceRef="noPaidOrder" targetRef="paidOrder">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${outcome=='支付'}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask activiti:exclusive="true" id="timeoutOrder" name="超时作废单">
+      <extensionElements>
+        <activiti:taskListener class="com.rl.ecps.utils.FlowOrderListener" event="create"/>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow3" name="超时" sourceRef="noPaidOrder" targetRef="timeoutOrder">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${outcome=='超时作废'}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask activiti:exclusive="true" id="readyItemOrder" name="备货单">
+      <extensionElements>
+        <activiti:taskListener class="com.rl.ecps.utils.FlowOrderListener" event="create"/>
+      </extensionElements>
+    </userTask>
+    <userTask activiti:exclusive="true" id="userGiveUpOrder" name="用户作废单">
+      <extensionElements>
+        <activiti:taskListener class="com.rl.ecps.utils.FlowOrderListener" event="create"/>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow4" name="外呼成功" sourceRef="paidOrder" targetRef="readyItemOrder">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${outcome=='外呼成功'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow5" name="用户作废" sourceRef="paidOrder" targetRef="userGiveUpOrder">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${outcome=='用户作废'}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask activiti:exclusive="true" id="getItemOrder" name="取货单">
+      <extensionElements>
+        <activiti:taskListener class="com.rl.ecps.utils.FlowOrderListener" event="create"/>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow6" name="备货完成" sourceRef="readyItemOrder" targetRef="getItemOrder"/>
+    <userTask activiti:exclusive="true" id="sendOrder" name="配送单">
+      <extensionElements>
+        <activiti:taskListener class="com.rl.ecps.utils.FlowOrderListener" event="create"/>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow7" name="取货完成" sourceRef="getItemOrder" targetRef="sendOrder"/>
+    <userTask activiti:exclusive="true" id="gotItemOrder" name="已收货单">
+      <extensionElements>
+        <activiti:taskListener class="com.rl.ecps.utils.FlowOrderListener" event="create"/>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow8" name="配送成功" sourceRef="sendOrder" targetRef="gotItemOrder">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${outcome=='配送成功'}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask activiti:exclusive="true" id="sendFailOrder" name="配送失败单">
+      <extensionElements>
+        <activiti:taskListener class="com.rl.ecps.utils.FlowOrderListener" event="create"/>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow9" name="配送失败" sourceRef="sendOrder" targetRef="sendFailOrder">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${outcome=='配送失败'}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask activiti:exclusive="true" id="returnStockOrder" name="退库单">
+      <extensionElements>
+        <activiti:taskListener class="com.rl.ecps.utils.FlowOrderListener" event="create"/>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow10" name="退库" sourceRef="sendFailOrder" targetRef="returnStockOrder"/>
+    <userTask activiti:exclusive="true" id="returnCashAuditOrder" name="退款审核单">
+      <extensionElements>
+        <activiti:taskListener class="com.rl.ecps.utils.FlowOrderListener" event="create"/>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow11" name="发起退款" sourceRef="returnStockOrder" targetRef="returnCashAuditOrder"/>
+    <sequenceFlow id="flow12" name="发起退款" sourceRef="gotItemOrder" targetRef="returnCashAuditOrder"/>
+    <sequenceFlow id="flow13" name="发起退款" sourceRef="userGiveUpOrder" targetRef="returnCashAuditOrder"/>
+    <userTask activiti:exclusive="true" id="returnCashOrder" name="退款单">
+      <extensionElements>
+        <activiti:taskListener class="com.rl.ecps.utils.FlowOrderListener" event="create"/>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow14" name="通过" sourceRef="returnCashAuditOrder" targetRef="returnCashOrder"/>
+    <endEvent id="endevent1" name="End"/>
+    <sequenceFlow id="flow15" name="退款" sourceRef="returnCashOrder" targetRef="endevent1"/>
+  </process>
+  <bpmndi:BPMNDiagram documentation="background=#3C3F41;count=2;horizontalcount=1;orientation=0;width=842.4;height=1195.2;imageableWidth=832.4;imageableHeight=1185.2;imageableX=5.0;imageableY=5.0" id="Diagram-_1" name="New Diagram">
+    <bpmndi:BPMNPlane bpmnElement="OrderFlow">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="Shape-startevent1">
+        <omgdc:Bounds height="32.0" width="32.0" x="485.0" y="10.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="32.0" width="32.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="noPaidOrder" id="Shape-noPaidOrder">
+        <omgdc:Bounds height="55.0" width="105.0" x="450.0" y="70.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="55.0" width="105.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="paidOrder" id="Shape-paidOrder">
+        <omgdc:Bounds height="55.0" width="105.0" x="450.0" y="176.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="55.0" width="105.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="timeoutOrder" id="Shape-timeoutOrder">
+        <omgdc:Bounds height="55.0" width="105.0" x="725.0" y="196.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="55.0" width="105.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="readyItemOrder" id="Shape-readyItemOrder">
+        <omgdc:Bounds height="55.0" width="105.0" x="300.0" y="250.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="55.0" width="105.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="userGiveUpOrder" id="Shape-userGiveUpOrder">
+        <omgdc:Bounds height="55.0" width="105.0" x="611.0" y="250.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="55.0" width="105.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="getItemOrder" id="Shape-getItemOrder">
+        <omgdc:Bounds height="55.0" width="105.0" x="300.0" y="350.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="55.0" width="105.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sendOrder" id="Shape-sendOrder">
+        <omgdc:Bounds height="55.0" width="105.0" x="300.0" y="450.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="55.0" width="105.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="gotItemOrder" id="Shape-gotItemOrder">
+        <omgdc:Bounds height="55.0" width="105.0" x="507.0" y="450.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="55.0" width="105.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sendFailOrder" id="Shape-sendFailOrder">
+        <omgdc:Bounds height="55.0" width="105.0" x="300.0" y="560.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="55.0" width="105.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="returnStockOrder" id="Shape-returnStockOrder">
+        <omgdc:Bounds height="55.0" width="105.0" x="300.0" y="660.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="55.0" width="105.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="returnCashAuditOrder" id="Shape-returnCashAuditOrder">
+        <omgdc:Bounds height="55.0" width="105.0" x="507.0" y="740.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="55.0" width="105.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="returnCashOrder" id="Shape-returnCashOrder">
+        <omgdc:Bounds height="55.0" width="105.0" x="509.0" y="840.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="55.0" width="105.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="Shape-endevent1">
+        <omgdc:Bounds height="32.0" width="32.0" x="544.0" y="950.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="32.0" width="32.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1" sourceElement="startevent1" targetElement="noPaidOrder">
+        <omgdi:waypoint x="501.0" y="42.0"/>
+        <omgdi:waypoint x="501.0" y="70.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="48.0" x="512.0" y="45.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2" sourceElement="noPaidOrder" targetElement="paidOrder">
+        <omgdi:waypoint x="502.5" y="125.0"/>
+        <omgdi:waypoint x="502.5" y="176.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="24.0" x="506.0" y="139.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3" sourceElement="noPaidOrder" targetElement="timeoutOrder">
+        <omgdi:waypoint x="555.0" y="97.0"/>
+        <omgdi:waypoint x="777.0" y="97.0"/>
+        <omgdi:waypoint x="777.0" y="196.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="24.0" x="625.0" y="100.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4" sourceElement="paidOrder" targetElement="readyItemOrder">
+        <omgdi:waypoint x="450.0" y="203.0"/>
+        <omgdi:waypoint x="357.0" y="203.0"/>
+        <omgdi:waypoint x="357.0" y="250.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="48.0" x="366.0" y="206.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5" sourceElement="paidOrder" targetElement="userGiveUpOrder">
+        <omgdi:waypoint x="555.0" y="203.0"/>
+        <omgdi:waypoint x="657.0" y="203.0"/>
+        <omgdi:waypoint x="657.0" y="250.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="48.0" x="565.0" y="203.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6" sourceElement="readyItemOrder" targetElement="getItemOrder">
+        <omgdi:waypoint x="352.5" y="305.0"/>
+        <omgdi:waypoint x="352.5" y="350.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="48.0" x="360.0" y="319.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7" sourceElement="getItemOrder" targetElement="sendOrder">
+        <omgdi:waypoint x="352.5" y="405.0"/>
+        <omgdi:waypoint x="352.5" y="450.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="48.0" x="362.0" y="405.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8" sourceElement="sendOrder" targetElement="gotItemOrder">
+        <omgdi:waypoint x="405.0" y="477.5"/>
+        <omgdi:waypoint x="507.0" y="477.5"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="48.0" x="415.0" y="477.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9" sourceElement="sendOrder" targetElement="sendFailOrder">
+        <omgdi:waypoint x="352.5" y="505.0"/>
+        <omgdi:waypoint x="352.5" y="560.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="48.0" x="351.0" y="519.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13" sourceElement="userGiveUpOrder" targetElement="returnCashAuditOrder">
+        <omgdi:waypoint x="663.0" y="305.0"/>
+        <omgdi:waypoint x="663.0" y="768.0"/>
+        <omgdi:waypoint x="612.0" y="768.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="48.0" x="670.0" y="360.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14" sourceElement="returnCashAuditOrder" targetElement="returnCashOrder">
+        <omgdi:waypoint x="560.5" y="795.0"/>
+        <omgdi:waypoint x="560.5" y="840.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="24.0" x="566.0" y="809.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15" sourceElement="returnCashOrder" targetElement="endevent1">
+        <omgdi:waypoint x="560.0" y="895.0"/>
+        <omgdi:waypoint x="560.0" y="950.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="24.0" x="562.0" y="899.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10" sourceElement="sendFailOrder" targetElement="returnStockOrder">
+        <omgdi:waypoint x="352.5" y="615.0"/>
+        <omgdi:waypoint x="352.5" y="660.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="24.0" x="362.0" y="615.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11" sourceElement="returnStockOrder" targetElement="returnCashAuditOrder">
+        <omgdi:waypoint x="352.0" y="715.0"/>
+        <omgdi:waypoint x="352.0" y="767.0"/>
+        <omgdi:waypoint x="507.0" y="767.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="48.0" x="360.0" y="749.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12" sourceElement="gotItemOrder" targetElement="returnCashAuditOrder">
+        <omgdi:waypoint x="559.5" y="505.0"/>
+        <omgdi:waypoint x="559.5" y="740.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="48.0" x="569.0" y="539.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/ecps-console/ecps-console.iml" filepath="$PROJECT_DIR$/ecps-console/ecps-console.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ecps-core/ecps-core.iml" filepath="$PROJECT_DIR$/ecps-core/ecps-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ecps-file/ecps-file.iml" filepath="$PROJECT_DIR$/ecps-file/ecps-file.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ecps-parent.iml" filepath="$PROJECT_DIR$/ecps-parent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ecps-portal/ecps-portal.iml" filepath="$PROJECT_DIR$/ecps-portal/ecps-portal.iml" />
+    </modules>
+  </component>
+</project>
